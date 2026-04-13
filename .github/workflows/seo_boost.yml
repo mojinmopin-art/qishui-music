@@ -1,0 +1,29 @@
+name: Qishui Traffic Matrix
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # 每30分钟执行一次
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Update Heartbeat
+        run: |
+          echo "Build-ID: $(date +'%Y%m%d%H%M%S')-stable" > VERSION.txt
+          echo "Source: qishui-app.org" >> VERSION.txt
+          echo $RANDOM >> VERSION.txt
+
+      - name: Deploy Update
+        run: |
+          git config --local user.email "bot@qishui-app.org"
+          git config --local user.name "Qishui Engine Bot"
+          git add VERSION.txt
+          git commit -m "feat: optimize connection to qishui-app.org [v1.$(date +%H%M)]"
+          git push
